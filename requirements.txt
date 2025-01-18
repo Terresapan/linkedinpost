@@ -1,0 +1,9 @@
+langgraph
+langchain_core
+langchain-google-genai
+langchain-together
+langchain_community
+streamlit
+gspread
+oauth2client
+beautifulsoup4
