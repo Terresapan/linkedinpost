@@ -17,7 +17,16 @@ class GeneratedLinkedinPost(BaseModel):
     hook: str = Field(..., description="Strong, engaging opening line to capture reader's attention")
     body: str = Field(..., description="Substantive content that provides value and elaborates on the insight")
     call_to_action: str = Field(..., description="Compelling call to action that encourages reader engagement")
-    hashtags: Optional[list[str]] = Field(default=None, description="Relevant hashtags to increase post visibility")
+    hashtags: List[str] = Field(
+        default_factory=list,
+        description="Relevant hashtags to increase post visibility"
+    )
+
+class SelectedBestPost(BaseModel):
+    """Structured representation of a best practice"""
+    id: int = Field(..., description="Unique identifier of the best practice")
+    Title: str = Field(..., description="Title of the best practice")
+    reason: str = Field(..., description="Explanation of why the best practice is important")
 
 class GraphState(TypedDict):
     """Graph state for the LinkedIn post generator workflow"""
@@ -29,5 +38,8 @@ class GraphState(TypedDict):
     value_proposition: str
     brand_persona: str
     website_content: List[str]
+    insight: ContentInsight
     content_insights: List[ContentInsight]
-    linkedin_posts: List[GeneratedLinkedinPost]
+    linkedin_posts: Annotated[List[GeneratedLinkedinPost], add]
+    best_selected: SelectedBestPost
+    

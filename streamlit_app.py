@@ -4,13 +4,7 @@ from typing import Dict, Any
 from main import run_workflow
 from utils import check_password, save_feedback
 
-# Set API keys from Streamlit secrets
-os.environ["TOGETHER_API_KEY"] = st.secrets["general"]["TOGETHER_API_KEY"]
-os.environ["LANGCHAIN_TRACING_V2"] = "true"
-os.environ["LANGCHAIN_API_KEY"] = st.secrets["LANGCHAIN_API_KEY"]["API_KEY"]
-os.environ["LANGCHAIN_ENDPOINT"]="https://api.smith.langchain.com"
-os.environ["LANGCHAIN_PROJECT"] = "Linkedin Post Generator"
-
+# Set the page configuration
 st.set_page_config(page_title="SmartMatch Staffing Platform", layout="wide", page_icon="✍️")
 
 def setup_sidebar():
@@ -88,6 +82,7 @@ def main():
                 "Custom Content",
                 placeholder="Or paste your content here...",
                 help="Enter custom content if not using a website URL",
+
                 height=150
             )
             
@@ -145,8 +140,7 @@ def main():
                 }
                 
                 # Run workflow
-                api_key = os.environ["TOGETHER_API_KEY"]
-                result = run_workflow(inputs, api_key)
+                result = run_workflow(inputs)
 
                 if result:
                     st.session_state.generated_content = result
@@ -162,7 +156,7 @@ def main():
     if st.session_state.generated_content:
         st.subheader("Generated Content")
         
-        tab1, tab2, tab3 = st.tabs(["Version 1", "Version 2", "Version 3"])
+        tab1, tab2, tab3, tab4 = st.tabs(["Angle 1", "Angle 2", "Angle 3", "Best Version"])
         
         for idx, (tab, insight, post) in enumerate(zip(
             [tab1, tab2, tab3],
@@ -195,6 +189,25 @@ def main():
                     key=f"copy_button_{idx}",
                     on_click=lambda text=full_post: st.write(text) or st.toast("Copied to clipboard!")
                 )
+
+        # Display the Best Version tab
+        with tab4:
+            best_selected = st.session_state.generated_content.get("best_selected")
+            if best_selected:
+                st.markdown("### The Best Version Selected")
+                st.markdown(f"**Selected Version:** Version {best_selected.id}")
+                st.markdown(f"**Selection Reasoning:** {best_selected.reason}")
+                
+                st.markdown("---")
+                
+                # Display the best post's content
+                best_post = st.session_state.generated_content["linkedin_posts"][best_selected.id - 1]
+                st.markdown("### The Best LinkedIn Post")
+                st.markdown(f"**Title:** {best_post.title}")
+                st.markdown(f"**Hook:** {best_post.hook}")
+                st.markdown(f"**Body:** {best_post.body}")
+                st.markdown(f"**Call to Action:** {best_post.call_to_action}")
+                st.markdown(f"**Hashtags:** {' '.join(best_post.hashtags)}")                            
 
 if __name__ == "__main__":
     main()
